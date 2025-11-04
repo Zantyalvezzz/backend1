@@ -1,0 +1,24 @@
+[
+  {
+    "id": "eb4a1ef6-e38a-4bc2-87d4-163cb55adc39",
+    "title": "Mochila Andes",
+    "description": "Mochila grande para viajes",
+    "code": "ANDES123",
+    "price": 4500,
+    "status": true,
+    "stock": 10,
+    "category": "viajes",
+    "thumbnails": []
+  },
+  {
+    "id": "abe4f04f-9b3d-4de4-9e27-f564b163693f",
+    "title": "Mochila Urbana",
+    "description": "Mochila moderna y resistente.",
+    "code": "MOCH-001",
+    "price": 2500,
+    "status": true,
+    "stock": 10,
+    "category": "Mochilas",
+    "thumbnails": []
+  }
+]
