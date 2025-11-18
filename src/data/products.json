@@ -20,5 +20,47 @@
     "stock": 10,
     "category": "Mochilas",
     "thumbnails": []
+  },
+  {
+    "id": "a6206de5-618f-4f3d-b802-47632ee1e3c1",
+    "title": "Teclado Mecánico",
+    "description": "Switch Red",
+    "code": "KB1234",
+    "price": 150,
+    "status": true,
+    "stock": 50,
+    "category": "peripherals",
+    "thumbnails": [
+      "img1.jpg",
+      "img2.jpg"
+    ]
+  },
+  {
+    "id": "7aab5e88-335b-4cb0-880c-737b029b5dc3",
+    "title": "Teclado Mecánico",
+    "description": "Switch Blue",
+    "code": "KB11234",
+    "price": 150,
+    "status": true,
+    "stock": 50,
+    "category": "peripherals",
+    "thumbnails": [
+      "img1.jpg",
+      "img2.jpg"
+    ]
+  },
+  {
+    "id": "47da73ee-09c3-43b4-a952-315492c750b7",
+    "title": "Teclado Mecánico",
+    "description": "Switch Green",
+    "code": "KB11434",
+    "price": 150,
+    "status": true,
+    "stock": 50,
+    "category": "peripherals",
+    "thumbnails": [
+      "img1.jpg",
+      "img2.jpg"
+    ]
   }
 ]
