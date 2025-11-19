@@ -1,14 +1,10 @@
 import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import paths from "../path/config.js";
 import { v4 as uuidv4 } from "uuid";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export default class CartManager {
     constructor() {
-        this.path = path.resolve(__dirname, "../data/carts.json");
+        this.path = paths.carts;
     }
 
     async _readFile() {
