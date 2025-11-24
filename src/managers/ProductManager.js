@@ -1,6 +1,7 @@
 import fs from "fs";
 import paths from "../path/config.js";
 import { v4 as uuidv4 } from "uuid";
+import { io } from "../index.js";
 
 
 export default class ProductManager {
@@ -98,6 +99,8 @@ export default class ProductManager {
             products.push(newProduct);
             await this._writeFile(products);
 
+            io.emit("products", products);
+
             return newProduct;
 
         } catch (err) {
@@ -144,8 +147,10 @@ export default class ProductManager {
             }
 
             await this._writeFile(filtered);
+            io.emit("products", filtered);
 
             return { success: true, message: `Producto con id '${id}' eliminado correctamente` };
+            
         } catch (error) {
             console.error("Error al eliminar producto:", error);
             throw new Error("Error al eliminar producto");
