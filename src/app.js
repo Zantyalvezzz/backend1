@@ -1,7 +1,11 @@
 import express from "express";
 import routes from "./routes/index.js";
 import paths from "./path/config.js";
+import ProductManager from "./managers/ProductManager.js";
 import { create } from "express-handlebars";
+
+
+const pm = new ProductManager();
 
 const app = express();
 
@@ -10,6 +14,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", routes);
 app.use("/public", express.static(paths.public));
+app.use("/js", express.static(paths.js));
+
 
 const hbs = create({
     extname: ".hbs",
@@ -24,8 +30,8 @@ app.get("/", (req, res) => {
     res.render("pages/home", {});
 });
 
-app.get("/realtimeproducts", (req, res) => {
-    res.render("pages/realTimeProducts");
+app.get("/realtimeproducts", async (req, res) => {
+    const products = await pm.getProducts();
+    res.render("pages/realTimeProducts", { products });
 });
-
 export default app;

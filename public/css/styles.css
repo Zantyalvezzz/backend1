@@ -1,0 +1,32 @@
+.rtp-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 2rem;
+}
+
+.rtp-section h2 {
+    text-align: center;
+    padding: 2rem;
+    font-size: 5rem;
+    color: #333;
+}   
+
+.rtp-section ul {
+    list-style-type: none;
+    padding: 1rem;
+    width: 50%;
+    background-color: rgba(64, 160, 19, 0.5);
+    border-radius: 8px;
+}
+
+.rtp-section ul li {
+    display: flex;
+    justify-content: center;
+    font-size: 2rem;
+    padding: 1rem;
+    border-bottom: 1px solid #02660b;
+    align-items: center;
+    color: rgb(49, 53, 49);
+}

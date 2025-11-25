@@ -99,7 +99,7 @@ export default class ProductManager {
             products.push(newProduct);
             await this._writeFile(products);
 
-            io.emit("products", products);
+            io.emit("update-products", products);
 
             return newProduct;
 
@@ -147,7 +147,7 @@ export default class ProductManager {
             }
 
             await this._writeFile(filtered);
-            io.emit("products", filtered);
+            io.emit("update-products", filtered);
 
             return { success: true, message: `Producto con id '${id}' eliminado correctamente` };
             

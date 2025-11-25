@@ -8,7 +8,8 @@ const paths = {
     public: path.resolve(__dirname, "../../public"),
     carts: path.resolve(__dirname, "../data/carts.json"),
     products: path.resolve(__dirname, "../data/products.json"),
-    views: path.resolve(__dirname, "../views")
+    views: path.resolve(__dirname, "../views"),
+    js: path.resolve(__dirname, "../../public/js"),
 };
 
 export default paths;
