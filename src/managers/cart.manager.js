@@ -6,11 +6,15 @@ export default class CartManager {
     return cart;
   }
 
-  async getCartById(cid) {
+  async getCartById(cid, lean = false) {
+    if (lean) {
+      return await CartModel.findById(cid).populate("products.product").lean();
+    }
     return await CartModel.findById(cid).populate("products.product");
   }
 
-  async addProductToCart(cid, pid) {
+
+  async addProductToCart(cid, pid, quantity = 1) {
     const cart = await CartModel.findById(cid);
     if (!cart) return null;
 
@@ -19,9 +23,9 @@ export default class CartManager {
     );
 
     if (productIndex !== -1) {
-      cart.products[productIndex].quantity += 1;
+      cart.products[productIndex].quantity += quantity;
     } else {
-      cart.products.push({ product: pid, quantity: 1 });
+      cart.products.push({ product: pid, quantity });
     }
 
     await cart.save();
@@ -51,16 +55,67 @@ export default class CartManager {
     return await CartModel.findByIdAndUpdate(cid, { products }, { new: true });
   }
 
-  async updateProductQuantity(cid, pid, quantity) {
-    const cart = await CartModel.findById(cid);
-    if (!cart) return null;
 
-    const product = cart.products.find((p) => p.product.toString() === pid);
+  async updateProductQuantity(cid, pid, quantity, action = "set") {
+  const cart = await CartModel.findById(cid);
+  if (!cart) return null;
 
-    if (!product) return null;
+  const productInCart = cart.products.find((p) => p.product.toString() === pid);
 
-    product.quantity = quantity;
-    await cart.save();
-    return cart;
+  if (!productInCart) {
+    if (action === "increase") {
+      cart.products.push({ product: pid, quantity: 1 });
+    } else {
+      return null; 
+    }
+  } else {
+    if (action === "increase") {
+      productInCart.quantity += quantity;
+    } else if (action === "decrease") {
+      productInCart.quantity -= quantity;
+      if (productInCart.quantity <= 0) {
+        cart.products = cart.products.filter((p) => p.product.toString() !== pid);
+      }
+    } else {
+      productInCart.quantity = quantity; 
+    }
   }
+
+  await cart.save();
+  return cart;
 }
+
+  async decreaseProductQuantity(cid, pid) {
+  const cart = await CartModel.findById(cid);
+  if (!cart) return null;
+
+  const product = cart.products.find((p) => p.product.toString() === pid);
+  if (!product) return null;
+
+  product.quantity -= 1;
+
+  if (product.quantity <= 0) {
+    cart.products = cart.products.filter((p) => p.product.toString() !== pid);
+  }
+
+  await cart.save();
+  return cart;
+}
+
+async increaseProductQuantity(cid, pid) {
+  const cart = await CartModel.findById(cid);
+  if (!cart) return null;
+
+  const product = cart.products.find((p) => p.product.toString() === pid);
+  if (product) {
+    product.quantity += 1;
+  } else {
+    cart.products.push({ product: pid, quantity: 1 });
+  }
+
+  await cart.save();
+  return cart;
+}
+}
+
+

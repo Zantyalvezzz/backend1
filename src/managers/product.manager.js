@@ -21,16 +21,12 @@ export default class ProductManager {
     if (sort) {
       options.sort = { price: sort === "asc" ? 1 : -1 };
     }
-
     return await Product.paginate(filter, options);
   }
 
-  async getProductById(pid) {
-    const product = await Product.findById(pid);
-    if (!product) {
-      throw new Error("Producto no encontrado");
-    }
-    return product;
+  async getProductById(pid, lean = false) {
+    if (lean) return await Product.findById(pid).lean();
+    return await Product.findById(pid);
   }
 
   async addProduct(productData) {

@@ -32,6 +32,29 @@ export const getCartById = async (req, res) => {
   }
 };
 
+export const addProductToCartController = async (req, res) => {
+  try {
+    const { cid, pid } = req.params;
+    const quantity = req.body.quantity ? parseInt(req.body.quantity) : 1;
+
+    const updatedCart = await cartManager.addProductToCart(cid, pid, quantity);
+
+    if (!updatedCart) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Carrito/producto no encontrado" });
+    }
+
+    res.json({ status: "success", payload: updatedCart });
+  } catch (error) {
+    console.error("Error al agregar producto al carrito:", error.message);
+    res.status(500).json({
+      status: "error",
+      message: "Error al agregar producto al carrito",
+    });
+  }
+};
+
 export const updateCart = async (req, res) => {
   try {
     const { cid } = req.params;
@@ -87,6 +110,8 @@ export const clearCart = async (req, res) => {
         .status(404)
         .json({ status: "error", message: "Carrito no encontrado" });
     }
+
+    console.log("Carrito vaciado correctamente:", clearedCart);
     res.json({ status: "success", payload: clearedCart });
   } catch (error) {
     console.error("Error al limpiar carrito:", error.message);

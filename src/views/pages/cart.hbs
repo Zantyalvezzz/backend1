@@ -1,0 +1,26 @@
+<div class="container">
+    <h1>Mi Carrito</h1>
+
+    <div class="cart-list">
+        {{#each cart.products}}
+        <div class="cart-item">
+            <span>{{this.product.title}}</span>
+            <span>Cantidad: {{this.quantity}}</span>
+            <form action="/api/carts/{{../cart._id}}/products/{{this.product._id}}/increase" method="POST"
+                style="display:inline;">
+                <button type="submit">+</button>
+            </form>
+
+            <form action="/api/carts/{{../cart._id}}/products/{{this.product._id}}/decrease" method="POST"
+                style="display:inline;">
+                <button type="submit">-</button>
+            </form>
+        </div>
+        {{/each}}
+    </div>
+
+    <form action="/carts/{{cart._id}}" method="POST" onsubmit="return confirmClearCart(this)">
+        <input type="hidden" name="_method" value="DELETE">
+        <button type="submit">Vaciar Carrito</button>
+    </form>
+</div>
