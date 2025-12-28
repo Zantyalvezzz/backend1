@@ -15,7 +15,7 @@ router.get("/products", async (req, res) => {
       page,
       limit,
       sort,
-      lean: true, 
+      lean: true,
     });
 
     const cartId = "694e397e486edb5ca8172694";
@@ -38,8 +38,8 @@ router.get("/products", async (req, res) => {
 router.get("/products/:pid", async (req, res) => {
   try {
     const { pid } = req.params;
-    
-    const product = await productManager.getProductById(pid, true); 
+
+    const product = await productManager.getProductById(pid, true);
 
     if (!product) {
       return res.status(404).send("Producto no encontrado");
@@ -60,7 +60,6 @@ router.get("/carts/:cid", async (req, res) => {
   try {
     const { cid } = req.params;
 
-   
     const cart = await cartManager.getCartById(cid, true);
 
     if (!cart) {

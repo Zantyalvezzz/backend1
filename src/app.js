@@ -8,7 +8,6 @@ import dotenv from "dotenv";
 import methodOverride from "method-override";
 import cartRouter from "./routes/carts.router.js";
 
-
 dotenv.config();
 
 mongoose
@@ -20,13 +19,15 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride(function (req, res) {
-  if (req.body && typeof req.body === 'object' && '_method' in req.body) {
-    let method = req.body._method;
-    delete req.body._method;
-    return method;
-  }
-}));
+app.use(
+  methodOverride(function (req, res) {
+    if (req.body && typeof req.body === "object" && "_method" in req.body) {
+      let method = req.body._method;
+      delete req.body._method;
+      return method;
+    }
+  })
+);
 
 app.use("/api/carts", cartRouter);
 app.use("/api", routes);
