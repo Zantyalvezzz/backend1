@@ -1,4 +1,3 @@
-/* Reset sencillo */
 * {
   margin: 0;
   padding: 0;
@@ -6,20 +5,19 @@
   font-family: Arial, sans-serif;
 }
 
-/* Contenedor general */
 .container {
   width: 90%;
   max-width: 1200px;
   margin: 2rem auto;
 }
 
-/* Títulos */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   margin-bottom: 1rem;
   color: #333;
 }
 
-/* Listado de productos */
 .product-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -66,7 +64,6 @@ h1, h2, h3 {
   background-color: #0056b3;
 }
 
-/* Product Detail */
 .product-detail {
   display: flex;
   gap: 2rem;
@@ -93,7 +90,6 @@ h1, h2, h3 {
   color: #555;
 }
 
-/* Cart */
 .cart-list {
   margin-top: 2rem;
 }
@@ -139,5 +135,3 @@ h1, h2, h3 {
 .pagination span {
   padding: 0.3rem 0.6rem;
 }
-
-
