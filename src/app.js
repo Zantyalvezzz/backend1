@@ -1,21 +1,26 @@
 import express from "express";
 import routes from "./routes/index.js";
-import paths from "./path/config.js";
+import paths from "./utils/config.js";
 import viewsRouter from "./routes/views.router.js";
+import sessionsRouter from "./routes/sessions.router.js";
+import passport from "passport";
+import initializePassport from "./utils/passport.config.js";
+import cookieParser from "cookie-parser";
 import { create } from "express-handlebars";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import methodOverride from "method-override";
 import cartRouter from "./routes/carts.router.js";
 
+const app = express();
+
 dotenv.config();
+initializePassport();
 
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("Conectado a MongoDB"))
   .catch((err) => console.error("Error conectandose con MongoDB:", err));
-
-const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -28,10 +33,13 @@ app.use(
     }
   })
 );
+app.use(passport.initialize());
+app.use(cookieParser());
 
 app.use("/api/carts", cartRouter);
 app.use("/api", routes);
 app.use("/", viewsRouter);
+app.use("/api/sessions", sessionsRouter);
 app.use("/public", express.static(paths.public));
 app.use("/js", express.static(paths.js));
 
