@@ -9,17 +9,11 @@ const cartSchema = new mongoose.Schema(
           ref: "Product",
           required: true,
         },
-        quantity: {
-          type: Number,
-          required: true,
-          default: 1,
-        },
+        quantity: { type: Number, required: true, default: 1 },
       },
     ],
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true },
 );
 
 const Cart = mongoose.model("Cart", cartSchema);

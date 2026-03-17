@@ -1,12 +1,12 @@
-import ProductManager from "../managers/product.manager.js";
+import ProductRepository from "../repositories/product.repository.js";
 
-const productManager = new ProductManager();
+const productRepository = new ProductRepository();
 
 export const getProducts = async (req, res) => {
   try {
     const { limit = 10, page = 1, sort, query } = req.query;
 
-    const result = await productManager.getProducts({
+    const result = await productRepository.getProducts({
       limit: Number(limit),
       page: Number(page),
       sort,
@@ -17,6 +17,7 @@ export const getProducts = async (req, res) => {
 
     const queryParams = new URLSearchParams();
     queryParams.append("limit", limit);
+
     if (sort) queryParams.append("sort", sort);
     if (query) queryParams.append("query", query);
 
@@ -47,27 +48,90 @@ export const getProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
   try {
     const { pid } = req.params;
-    const product = await productManager.getProductById(pid);
+
+    const product = await productRepository.getProductById(pid);
 
     if (!product) {
-      return res.status(404).json({ error: "Producto no encontrado" });
+      return res.status(404).json({
+        error: "Producto no encontrado",
+      });
     }
 
     res.json(product);
   } catch (error) {
-    res.status(500).json({ error: "Error interno del servidor" });
+    res.status(500).json({
+      error: "Error interno del servidor",
+    });
   }
 };
 
 export const createProduct = async (req, res) => {
   try {
-    const created = await productManager.addProduct(req.body);
+    const created = await productRepository.addProduct(req.body);
 
     const io = req.app.get("io");
-    io.emit("update-products");
+    if (io) io.emit("update-products");
 
     res.status(201).json(created);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({
+      error: error.message,
+    });
+  }
+};
+
+export const updateProduct = async (req, res) => {
+  try {
+    const { pid } = req.params;
+    const updatedData = req.body;
+
+    const updatedProduct = await productRepository.updateProduct(
+      pid,
+      updatedData,
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({
+        error: "Producto no encontrado",
+      });
+    }
+
+    const io = req.app.get("io");
+    if (io) io.emit("update-products");
+
+    res.json({
+      status: "success",
+      payload: updatedProduct,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Error al actualizar el producto",
+    });
+  }
+};
+
+export const deleteProduct = async (req, res) => {
+  try {
+    const { pid } = req.params;
+
+    const deletedProduct = await productRepository.deleteProduct(pid);
+
+    if (!deletedProduct) {
+      return res.status(404).json({
+        error: "Producto no encontrado",
+      });
+    }
+
+    const io = req.app.get("io");
+    if (io) io.emit("update-products");
+
+    res.json({
+      status: "success",
+      message: "Producto eliminado correctamente",
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Error al eliminar el producto",
+    });
   }
 };

@@ -15,7 +15,8 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
-    "dotenv": "^17.2.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
     "express": "^5.1.0",
     "express-handlebars": "^8.0.3",
     "handlebars": "^4.7.8",
@@ -24,9 +25,9 @@
     "mongoose": "^9.0.1",
     "mongoose-paginate-v2": "^1.9.1",
     "multer": "^2.0.2",
+    "nodemailer": "^8.0.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
-    "socket.io": "^4.8.1",
     "sweetalert2": "^11.26.3",
     "uuid": "^13.0.0"
   }

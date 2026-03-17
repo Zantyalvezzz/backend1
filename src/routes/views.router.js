@@ -1,24 +1,24 @@
 import { Router } from "express";
-import ProductManager from "../managers/product.manager.js";
-import CartManager from "../managers/cart.manager.js";
+import ProductRepository from "../repositories/product.repository.js";
+import CartRepository from "../repositories/cart.repository.js";
 
 const router = Router();
 
-const productManager = new ProductManager();
-const cartManager = new CartManager();
+const productRepository = new ProductRepository();
+const cartRepository = new CartRepository();
+
+const CART_ID = "69b9daa7dd4df2ff38a3a47f";
 
 router.get("/products", async (req, res) => {
   try {
     const { page = 1, limit = 10, sort } = req.query;
 
-    const result = await productManager.getProducts({
+    const result = await productRepository.getProducts({
       page,
       limit,
       sort,
       lean: true,
     });
-
-    const cartId = "694e397e486edb5ca8172694";
 
     res.render("pages/index", {
       products: result.docs,
@@ -28,9 +28,10 @@ router.get("/products", async (req, res) => {
       hasNextPage: result.hasNextPage,
       prevPage: result.prevPage,
       nextPage: result.nextPage,
-      cartId,
+      cartId: CART_ID,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).send("Error al cargar productos");
   }
 });
@@ -39,19 +40,18 @@ router.get("/products/:pid", async (req, res) => {
   try {
     const { pid } = req.params;
 
-    const product = await productManager.getProductById(pid, true);
+    const product = await productRepository.getProductById(pid);
 
     if (!product) {
       return res.status(404).send("Producto no encontrado");
     }
 
-    const cartId = "694e397e486edb5ca8172694";
-
     res.render("pages/productDetail", {
-      product,
-      cartId,
+      product: product.toObject(),
+      cartId: CART_ID,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).send("Error al cargar el producto");
   }
 });
@@ -60,14 +60,17 @@ router.get("/carts/:cid", async (req, res) => {
   try {
     const { cid } = req.params;
 
-    const cart = await cartManager.getCartById(cid, true);
+    const cart = await cartRepository.getCartById(cid, true);
 
     if (!cart) {
       return res.status(404).send("Carrito no encontrado");
     }
 
-    res.render("pages/cart", { cart });
+    res.render("pages/cart", {
+      cart,
+    });
   } catch (error) {
+    console.error(error);
     res.status(500).send("Error al cargar el carrito");
   }
 });
@@ -75,9 +78,12 @@ router.get("/carts/:cid", async (req, res) => {
 router.delete("/carts/:cid", async (req, res) => {
   try {
     const { cid } = req.params;
-    await cartManager.clearCart(cid);
+
+    await cartRepository.clearCart(cid);
+
     res.redirect(`/carts/${cid}`);
   } catch (error) {
+    console.error(error);
     res.status(500).send("Error al vaciar el carrito");
   }
 });
@@ -85,11 +91,24 @@ router.delete("/carts/:cid", async (req, res) => {
 router.delete("/carts/:cid/products/:pid", async (req, res) => {
   try {
     const { cid, pid } = req.params;
-    await cartManager.deleteProductFromCart(cid, pid);
+
+    await cartRepository.deleteProductFromCart(cid, pid);
+
     res.redirect(`/carts/${cid}`);
   } catch (error) {
+    console.error(error);
     res.status(500).send("Error al eliminar producto del carrito");
   }
+});
+
+router.get("/reset-password", (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).send("Token inválido o faltante");
+  }
+
+  res.render("pages/resetPassword", { token });
 });
 
 export default router;
