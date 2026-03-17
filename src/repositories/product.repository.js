@@ -63,4 +63,3 @@ export default class ProductRepository {
     return { success: true };
   }
 }
-

@@ -20,7 +20,7 @@ export default class CartRepository {
 
     const productIndex = cart.products.findIndex(
       (p) =>
-        p.product?._id?.toString() === pid || p.product?.toString() === pid
+        p.product?._id?.toString() === pid || p.product?.toString() === pid,
     );
 
     if (productIndex !== -1) {
@@ -58,7 +58,7 @@ export default class CartRepository {
 
     cart.products = cart.products.filter(
       (p) =>
-        p.product?._id?.toString() !== pid && p.product?.toString() !== pid
+        p.product?._id?.toString() !== pid && p.product?.toString() !== pid,
     );
 
     return await cartDAO.save(cart);

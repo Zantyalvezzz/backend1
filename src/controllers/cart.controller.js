@@ -260,7 +260,6 @@ export const purchaseCart = async (req, res) => {
       message: "Error al procesar la compra",
     });
   }
-  
 };
 
 export const increaseProductQuantity = async (req, res) => {
@@ -277,7 +276,7 @@ export const increaseProductQuantity = async (req, res) => {
     }
 
     const product = cart.products.find(
-      (p) => (p.product?._id?.toString() || p.product.toString()) === pid
+      (p) => (p.product?._id?.toString() || p.product.toString()) === pid,
     );
 
     if (!product) {
@@ -312,7 +311,7 @@ export const decreaseProductQuantity = async (req, res) => {
     }
 
     const product = cart.products.find(
-      (p) => (p.product?._id?.toString() || p.product.toString()) === pid
+      (p) => (p.product?._id?.toString() || p.product.toString()) === pid,
     );
 
     if (!product) {
@@ -326,8 +325,7 @@ export const decreaseProductQuantity = async (req, res) => {
       product.quantity -= 1;
     } else {
       cart.products = cart.products.filter(
-        (p) =>
-          (p.product?._id?.toString() || p.product.toString()) !== pid
+        (p) => (p.product?._id?.toString() || p.product.toString()) !== pid,
       );
     }
 
