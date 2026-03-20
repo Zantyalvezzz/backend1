@@ -68,10 +68,6 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const created = await productRepository.addProduct(req.body);
-
-    const io = req.app.get("io");
-    if (io) io.emit("update-products");
-
     res.status(201).json(created);
   } catch (error) {
     res.status(400).json({

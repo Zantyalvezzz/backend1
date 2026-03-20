@@ -1,14 +1,23 @@
 <div class="container">
+  <div
+    id="cart-message"
+    style="display:none; padding:10px; margin-bottom:10px; background:#d4edda; color:#155724; border:1px solid #c3e6cb; border-radius:5px;"
+  >
+    Producto agregado al carrito
+  </div>
+
   <div class="product-detail">
     <img src="{{product.thumbnail}}" alt="{{product.title}}" />
+
     <div class="product-detail-info">
       <h2>{{product.title}}</h2>
       <p>Precio: ${{product.price}}</p>
       <p>Categoría: {{product.category}}</p>
       <p>{{product.description}}</p>
+
       <form
         class="add-to-cart-form"
-        action="/api/carts/{{cartId}}/products/{{product._id}}"
+        action="/api/carts/products/{{product._id}}"
         method="POST"
       >
         <input type="hidden" name="quantity" value="1" />
@@ -16,4 +25,7 @@
       </form>
     </div>
   </div>
+
 </div>
+
+<script src="/js/products.js"></script>

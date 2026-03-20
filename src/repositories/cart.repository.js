@@ -4,8 +4,13 @@ import CartDAO from "../dao/cart.dao.js";
 const cartDAO = new CartDAO();
 
 export default class CartRepository {
-  async createCart() {
-    return await cartDAO.createCart();
+  async createCart(userId = null) {
+    const cart = await cartDAO.createCart();
+    if (userId) {
+      cart.user = new mongoose.Types.ObjectId(userId);
+      await cartDAO.save(cart);
+    }
+    return cart;
   }
 
   async getCartById(cid, lean = false) {
@@ -16,40 +21,57 @@ export default class CartRepository {
     const cart = await cartDAO.getCartById(cid);
     if (!cart) return null;
 
-    const productId = new mongoose.Types.ObjectId(pid);
+    const productIdStr = pid.toString();
 
-    const productIndex = cart.products.findIndex(
-      (p) =>
-        p.product?._id?.toString() === pid || p.product?.toString() === pid,
-    );
+    const productIndex = cart.products.findIndex((p) => {
+      const currentId = p.product._id
+        ? p.product._id.toString()
+        : p.product.toString();
+
+      return currentId === productIdStr;
+    });
 
     if (productIndex !== -1) {
-      cart.products[productIndex].quantity += quantity;
+      const currentQty = Number(cart.products[productIndex].quantity) || 0;
+      cart.products[productIndex].quantity = currentQty + Number(quantity);
     } else {
-      cart.products.push({ product: productId, quantity });
+      cart.products.push({
+        product: new mongoose.Types.ObjectId(pid),
+        quantity: Number(quantity),
+      });
     }
 
     return await cartDAO.save(cart);
   }
 
-  async updateProductQuantity(cid, pid, quantity) {
-    const cart = await cartDAO.getCartById(cid);
+  async updateProductQuantity(cartId, productId, quantity) {
+    const cart = await this.getCartById(cartId);
     if (!cart) return null;
 
-    const productId = pid.toString();
+    const item = cart.products.find((p) => {
+      const currentId = p.product._id
+        ? p.product._id.toString()
+        : p.product.toString();
 
-    const product = cart.products.find((p) => {
-      const productIdStr = p.product?._id?.toString() || p.product?.toString();
-      return productIdStr === productId;
+      return currentId === productId.toString();
     });
 
-    if (!product) {
-      console.log("Product not found in cart");
-      return null;
+    if (!item) return null;
+
+    if (quantity <= 0) {
+      cart.products = cart.products.filter((p) => {
+        const currentId = p.product._id
+          ? p.product._id.toString()
+          : p.product.toString();
+
+        return currentId !== productId.toString();
+      });
+    } else {
+      item.quantity = Number(quantity);
     }
 
-    product.quantity = quantity;
-    return await cartDAO.save(cart);
+    await cart.save();
+    return this.getCartById(cartId, true);
   }
 
   async removeProductFromCart(cid, pid) {
@@ -83,5 +105,34 @@ export default class CartRepository {
 
     cart.products = formattedProducts;
     return await cartDAO.save(cart);
+  }
+
+  async mergeCarts(sessionCartId, userCartId) {
+    const sessionCart = await cartDAO.getCartById(sessionCartId);
+    const userCart = await cartDAO.getCartById(userCartId);
+
+    if (!sessionCart || !userCart) return;
+
+    for (const item of sessionCart.products) {
+      const itemId = item.product?._id?.toString() || item.product.toString();
+
+      const existing = userCart.products.find((p) => {
+        const pId = p.product?._id?.toString() || p.product.toString();
+        return pId === itemId;
+      });
+
+      if (existing) {
+        existing.quantity += item.quantity;
+      } else {
+        userCart.products.push({
+          product: item.product._id || item.product,
+          quantity: item.quantity,
+        });
+      }
+    }
+
+    await cartDAO.save(userCart);
+
+    await cartDAO.deleteCartById(sessionCartId);
   }
 }

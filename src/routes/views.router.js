@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { ensureCart } from "../middlewares/ensureCart.js";
 import ProductRepository from "../repositories/product.repository.js";
 import CartRepository from "../repositories/cart.repository.js";
 
@@ -7,9 +8,12 @@ const router = Router();
 const productRepository = new ProductRepository();
 const cartRepository = new CartRepository();
 
-const CART_ID = "69b9daa7dd4df2ff38a3a47f";
+const getCartId = (req) => {
+  if (req.user?.cart) return req.user.cart.toString();
+  return req.session.cartId;
+};
 
-router.get("/products", async (req, res) => {
+router.get("/products", ensureCart, async (req, res) => {
   try {
     const { page = 1, limit = 10, sort } = req.query;
 
@@ -28,7 +32,7 @@ router.get("/products", async (req, res) => {
       hasNextPage: result.hasNextPage,
       prevPage: result.prevPage,
       nextPage: result.nextPage,
-      cartId: CART_ID,
+      cartId: getCartId(req),
     });
   } catch (error) {
     console.error(error);
@@ -36,7 +40,7 @@ router.get("/products", async (req, res) => {
   }
 });
 
-router.get("/products/:pid", async (req, res) => {
+router.get("/products/:pid", ensureCart, async (req, res) => {
   try {
     const { pid } = req.params;
 
@@ -48,7 +52,7 @@ router.get("/products/:pid", async (req, res) => {
 
     res.render("pages/productDetail", {
       product: product.toObject(),
-      cartId: CART_ID,
+      cartId: getCartId(req),
     });
   } catch (error) {
     console.error(error);
@@ -56,9 +60,9 @@ router.get("/products/:pid", async (req, res) => {
   }
 });
 
-router.get("/carts/:cid", async (req, res) => {
+router.get("/carts", ensureCart, async (req, res) => {
   try {
-    const { cid } = req.params;
+    const cid = getCartId(req);
 
     const cart = await cartRepository.getCartById(cid, true);
 
@@ -66,46 +70,26 @@ router.get("/carts/:cid", async (req, res) => {
       return res.status(404).send("Carrito no encontrado");
     }
 
-    res.render("pages/cart", {
-      cart,
-    });
+    res.render("pages/cart", { cart });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error al cargar el carrito");
   }
 });
 
-router.delete("/carts/:cid", async (req, res) => {
-  try {
-    const { cid } = req.params;
-
-    await cartRepository.clearCart(cid);
-
-    res.redirect(`/carts/${cid}`);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error al vaciar el carrito");
-  }
+router.get("/login", (req, res) => {
+  res.render("pages/login");
 });
 
-router.delete("/carts/:cid/products/:pid", async (req, res) => {
-  try {
-    const { cid, pid } = req.params;
-
-    await cartRepository.deleteProductFromCart(cid, pid);
-
-    res.redirect(`/carts/${cid}`);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error al eliminar producto del carrito");
-  }
+router.get("/forgot-password", (req, res) => {
+  res.render("pages/forgotPassword");
 });
 
 router.get("/reset-password", (req, res) => {
   const { token } = req.query;
 
   if (!token) {
-    return res.status(400).send("Token inválido o faltante");
+    return res.status(400).send("Token inválido");
   }
 
   res.render("pages/resetPassword", { token });

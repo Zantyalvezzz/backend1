@@ -32,8 +32,6 @@ export const sendRecoveryEmail = async (email, token) => {
         <p>Este enlace expirará en 1 hora.</p>
       `,
     });
-
-    console.log("Correo enviado correctamente");
     return res;
   } catch (e) {
     console.error(`Error enviando correo: ${e.message}`);

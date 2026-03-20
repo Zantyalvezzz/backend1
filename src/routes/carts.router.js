@@ -1,37 +1,34 @@
 import { Router } from "express";
+import { ensureCart } from "../middlewares/ensureCart.js";
+import CartRepository from "../repositories/cart.repository.js";
 import {
   createCart,
   getCartById,
   updateCart,
-  updateProductQuantity,
   deleteProductFromCart,
   clearCart,
   addProductToCartController,
   purchaseCart,
-  increaseProductQuantity,
-  decreaseProductQuantity,
+  updateProductQuantity,
 } from "../controllers/cart.controller.js";
 
 const router = Router();
+const cartRepository = new CartRepository();
 
 router.post("/", createCart);
 
-router.post("/:cid/products/:pid", addProductToCartController);
+router.post("/products/:pid", ensureCart, addProductToCartController);
 
-router.post("/:cid/products/:pid/increase", increaseProductQuantity);
+router.put("/products/:pid", ensureCart, updateProductQuantity);
 
-router.post("/:cid/products/:pid/decrease", decreaseProductQuantity);
+router.post("/purchase", ensureCart, purchaseCart);
 
-router.post("/:cid/purchase", purchaseCart);
+router.get("/", ensureCart, getCartById);
 
-router.get("/:cid", getCartById);
+router.put("/", ensureCart, updateCart);
 
-router.put("/:cid", updateCart);
+router.delete("/products/:pid", ensureCart, deleteProductFromCart);
 
-router.put("/:cid/products/:pid", updateProductQuantity);
-
-router.delete("/:cid/products/:pid", deleteProductFromCart);
-
-router.delete("/:cid", clearCart);
+router.delete("/", ensureCart, clearCart);
 
 export default router;

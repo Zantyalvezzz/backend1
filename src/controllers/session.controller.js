@@ -1,4 +1,5 @@
 import UserRepository from "../repositories/user.repository.js";
+import CartRepository from "../repositories/cart.repository.js";
 import bcrypt from "bcrypt";
 import UserDTO from "../dto/user.dto.js";
 import crypto from "crypto";
@@ -6,6 +7,7 @@ import { sendRecoveryEmail } from "../utils/mailer.js";
 import { generateToken } from "../utils/jwt.js";
 
 const userRepository = new UserRepository();
+const cartRepository = new CartRepository();
 
 export default class SessionsController {
   async register(req, res) {
@@ -37,14 +39,23 @@ export default class SessionsController {
         role: "user",
       });
 
+      const cart = await cartRepository.createCart(newUser._id);
+
+      newUser.cart = cart._id;
+      await newUser.save();
+
+      const payload = {
+        ...new UserDTO(newUser),
+        cartId: cart._id,
+      };
+
       res.status(201).json({
         status: "success",
         message: "Usuario creado correctamente",
-        payload: new UserDTO(newUser),
+        payload,
       });
     } catch (error) {
       console.error(error);
-
       res.status(500).json({
         status: "error",
         message: "Error interno del servidor",
@@ -81,6 +92,45 @@ export default class SessionsController {
         });
       }
 
+      let userCart = await cartRepository.getCartById(user.cart);
+
+      if (!userCart) {
+        userCart = await cartRepository.createCart(user._id);
+        user.cart = userCart._id;
+        await user.save();
+      }
+
+      if (!userCart.user) {
+        userCart.user = user._id;
+        await userCart.save();
+      }
+
+      const guestCartId = req.session.cartId;
+
+      if (guestCartId) {
+        const guestCart = await cartRepository.getCartById(guestCartId);
+
+        if (guestCart) {
+          for (const item of guestCart.products) {
+            const existing = userCart.products.find(
+              (p) => p.product.toString() === item.product.toString(),
+            );
+
+            if (existing) {
+              existing.quantity += item.quantity;
+            } else {
+              userCart.products.push(item);
+            }
+          }
+
+          await userCart.save();
+
+          await cartRepository.deleteCartById?.(guestCartId);
+        }
+
+        req.session.cartId = null;
+      }
+
       const token = generateToken(user);
 
       res
@@ -88,14 +138,18 @@ export default class SessionsController {
           httpOnly: true,
           maxAge: 2 * 60 * 60 * 1000,
           secure: false,
+          sameSite: "lax",
         })
         .json({
           status: "success",
           message: "Usuario logueado correctamente",
+          payload: {
+            user: new UserDTO(user),
+            cartId: user.cart,
+          },
         });
     } catch (error) {
       console.error(error);
-
       res.status(500).json({
         status: "error",
         message: "Error interno del servidor",
@@ -104,6 +158,10 @@ export default class SessionsController {
   }
 
   async logout(req, res) {
+    if (req.session) {
+      req.session.destroy(() => {});
+    }
+
     res.clearCookie("token").json({
       status: "success",
       message: "Sesión cerrada correctamente",

@@ -11,11 +11,7 @@ router.post("/login", sessionsController.login);
 
 router.post("/logout", sessionsController.logout);
 
-router.get(
-  "/current",
-  passport.authenticate("jwt", { session: false }),
-  sessionsController.current,
-);
+router.get("/current", passport.authenticate("jwt", { session: false }),sessionsController.current);
 
 router.post("/forgot-password", sessionsController.forgotPassword);
 
